@@ -39,9 +39,9 @@ THE SOFTWARE.
 
 
   <properties>
-    <guavaVersion>11.0.1</guavaVersion>
+    <guavaVersion>30.0-android</guavaVersion>
     <slf4jVersion>1.7.30</slf4jVersion>
-    <stapler.version>1.261</stapler.version>
+    <stapler.version>1.263</stapler.version>
     <groovy.version>2.4.12</groovy.version>
   </properties>
 
@@ -202,7 +202,7 @@ THE SOFTWARE.
       <dependency>
         <groupId>com.github.jnr</groupId>
         <artifactId>jnr-posix</artifactId>
-        <version>3.0.45</version>
+        <version>3.1.8</version>
       </dependency>
       <dependency>
         <groupId>org.kohsuke</groupId>
@@ -247,12 +247,12 @@ THE SOFTWARE.
       <dependency>
         <groupId>commons-beanutils</groupId>
         <artifactId>commons-beanutils</artifactId>
-        <version>1.9.3</version>
+        <version>1.9.4</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
-        <version>1.19</version>
+        <version>1.21</version>
       </dependency>
       <dependency>
         <groupId>commons-collections</groupId>
@@ -262,7 +262,7 @@ THE SOFTWARE.
       <dependency>
         <groupId>commons-fileupload</groupId>
         <artifactId>commons-fileupload</artifactId>
-        <version>1.3.1-jenkins-2</version>
+        <version>1.3.3</version>
       </dependency>
       <dependency>
         <groupId>com.sun.xml.txw2</groupId>
@@ -334,7 +334,7 @@ THE SOFTWARE.
       <dependency>
         <groupId>com.thoughtworks.xstream</groupId>
         <artifactId>xstream</artifactId>
-        <version>1.4.15</version>
+        <version>1.4.18</version>
       </dependency>
       <dependency>
         <groupId>net.sf.kxml</groupId>
@@ -401,7 +401,7 @@ THE SOFTWARE.
       <dependency>
         <groupId>commons-jelly</groupId>
         <artifactId>commons-jelly-tags-xml</artifactId>
-        <version>1.1</version>
+        <version>20030211.142705</version>
       </dependency>
       <dependency>
         <groupId>org.jvnet.hudson</groupId>
