@@ -1,9 +1,11 @@
 package hudson.tasks;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import hudson.FilePath;
 import hudson.model.AbstractProject;
 import hudson.model.FreeStyleProject;
-import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -23,7 +25,7 @@ public class CommandInterpreterTest {
     @LocalData
     public void ensurePluginCommandInterpretersCanBeLoaded() {
         final Builder builder = j.jenkins.getItemByFullName("a", FreeStyleProject.class).getBuildersList().get(0);
-        Assert.assertTrue(builder instanceof TestCommandInterpreter);
+        assertThat(builder, instanceOf(TestCommandInterpreter.class));
 
         try {
             ((TestCommandInterpreter) builder).getConfiguredLocalRules().isEmpty();
@@ -31,7 +33,7 @@ public class CommandInterpreterTest {
             Assert.fail("getConfiguredLocalRules must not return null");
         }
         try {
-            ((TestCommandInterpreter)builder).buildEnvVarsFilterRules();
+            ((TestCommandInterpreter) builder).buildEnvVarsFilterRules();
         } catch (NullPointerException ex) {
             Assert.fail("buildEnvVarsFilterRules must not throw");
         }

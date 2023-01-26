@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package jenkins.security.apitoken;
 
 import org.kohsuke.accmod.Restricted;
@@ -29,7 +30,7 @@ import org.kohsuke.accmod.restrictions.Beta;
 /**
  * Contains information about the token and the secret value.
  * It should not be stored as is, but just displayed once to the user and then forget about it.
- * @since TODO
+ * @since This was added in 2.260 but marked NoExternalUse, opened as Beta in 2.265
  */
 @Restricted(Beta.class)
 public class TokenUuidAndPlainValue {
@@ -37,13 +38,13 @@ public class TokenUuidAndPlainValue {
      * The token identifier to allow manipulation of the token
      */
     public final String tokenUuid;
-    
+
     /**
      * Confidential information, must not be stored.<p>
      * It's meant to be send only one to the user and then only store the hash of this value.
      */
     public final String plainValue;
-    
+
     public TokenUuidAndPlainValue(String tokenUuid, String plainValue) {
         this.tokenUuid = tokenUuid;
         this.plainValue = plainValue;

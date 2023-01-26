@@ -1,24 +1,18 @@
 package jenkins.util.xml;
 
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import jenkins.util.SystemProperties;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
-
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -34,6 +28,12 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import jenkins.util.SystemProperties;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 /**
   * Utilities useful when working with various XML types.
@@ -41,8 +41,8 @@ import javax.xml.xpath.XPathFactory;
  */
 public final class XMLUtils {
 
-    private final static Logger LOGGER = LogManager.getLogManager().getLogger(XMLUtils.class.getName());
-    private final static String DISABLED_PROPERTY_NAME = XMLUtils.class.getName() + ".disableXXEPrevention";
+    private static final Logger LOGGER = LogManager.getLogManager().getLogger(XMLUtils.class.getName());
+    private static final String DISABLED_PROPERTY_NAME = XMLUtils.class.getName() + ".disableXXEPrevention";
 
     private static final String FEATURE_HTTP_XML_ORG_SAX_FEATURES_EXTERNAL_GENERAL_ENTITIES = "http://xml.org/sax/features/external-general-entities";
     private static final String FEATURE_HTTP_XML_ORG_SAX_FEATURES_EXTERNAL_PARAMETER_ENTITIES = "http://xml.org/sax/features/external-parameter-entities";
@@ -108,8 +108,9 @@ public final class XMLUtils {
      * @return The XML {@link Document}.
      * @throws SAXException Error parsing the XML stream data e.g. badly formed XML.
      * @throws IOException Error reading from the steam.
-     * @since TODO
+     * @since 2.265
      */
+    @SuppressFBWarnings(value = "XXE_DOCUMENT", justification = "newDocumentBuilderFactory() does what FindSecBugs recommends, yet FindSecBugs cannot see this")
     public static @NonNull Document parse(@NonNull InputStream stream) throws SAXException, IOException {
         DocumentBuilder docBuilder;
 
@@ -134,6 +135,7 @@ public final class XMLUtils {
      * @throws IOException Error reading from the steam.
      * @since 2.0
      */
+    @SuppressFBWarnings(value = "XXE_DOCUMENT", justification = "newDocumentBuilderFactory() does what FindSecBugs recommends, yet FindSecBugs cannot see this")
     public static @NonNull Document parse(@NonNull Reader stream) throws SAXException, IOException {
         DocumentBuilder docBuilder;
 
@@ -153,7 +155,7 @@ public final class XMLUtils {
      * @return The parsed document.
      * @throws SAXException Error parsing the XML file data e.g. badly formed XML.
      * @throws IOException Error reading from the file.
-     * @since TODO
+     * @since 2.265
      */
     public static @NonNull Document parse(@NonNull File file) throws SAXException, IOException {
         if (!file.exists() || !file.isFile()) {
@@ -265,6 +267,7 @@ public final class XMLUtils {
 
         return documentBuilderFactory;
     }
+
     private static void setDocumentBuilderFactoryFeature(DocumentBuilderFactory documentBuilderFactory, String feature, boolean state) {
         try {
             documentBuilderFactory.setFeature(feature, state);

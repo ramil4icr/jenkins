@@ -31,13 +31,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class PrincipalSid implements Sid {
 
     private final String principal;
-    
+
     public PrincipalSid(String principal) {
         this.principal = principal;
     }
 
     /**
-     * @since TODO
+     * @since 2.266
      */
     public PrincipalSid(Authentication a) {
         Object p = a.getPrincipal();
@@ -51,7 +51,7 @@ public class PrincipalSid implements Sid {
     public PrincipalSid(org.acegisecurity.Authentication a) {
         this(a.toSpring());
     }
-    
+
     public String getPrincipal() {
         return principal;
     }

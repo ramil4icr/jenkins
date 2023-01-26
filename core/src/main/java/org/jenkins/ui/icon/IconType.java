@@ -21,10 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkins.ui.icon;
 
-import org.apache.commons.jelly.JellyContext;
-import org.kohsuke.stapler.Stapler;
+package org.jenkins.ui.icon;
 
 /**
  * Icon type.
@@ -34,7 +32,7 @@ import org.kohsuke.stapler.Stapler;
  */
 public enum IconType {
     CORE,
-    PLUGIN,;
+    PLUGIN;
 
     /**
      * Qualify the supplied icon url.
@@ -42,11 +40,10 @@ public enum IconType {
      * Qualifying the URL involves prefixing it depending on whether the icon is a core or plugin icon.
      *
      * @param url The url to be qualified.
-     * @param context The JellyContext.
+     * @param resURL The url of resources.
      * @return The qualified icon url.
      */
-    public String toQualifiedUrl(String url, JellyContext context) {
-        String resURL = context.getVariable("resURL").toString();
+    public String toQualifiedUrl(String url, String resURL) {
 
         switch (this) {
             case CORE: {
@@ -55,8 +52,8 @@ public enum IconType {
             case PLUGIN: {
                 return resURL + "/plugin/" + url;
             }
+            default:
+                throw new AssertionError("Unknown icon type: " + this);
         }
-
-        return null;
     }
 }

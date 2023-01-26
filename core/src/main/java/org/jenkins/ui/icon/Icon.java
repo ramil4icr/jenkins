@@ -21,9 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkins.ui.icon;
 
-import org.apache.commons.jelly.JellyContext;
+package org.jenkins.ui.icon;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +30,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.jelly.JellyContext;
+import org.apache.commons.lang.StringUtils;
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.NoExternalUse;
 
 /**
  * Simple icon metadata class.
@@ -45,7 +48,8 @@ public class Icon {
     public static final String ICON_LARGE_STYLE = "width: 32px; height: 32px;";
     public static final String ICON_XLARGE_STYLE = "width: 48px; height: 48px;";
 
-    private static final Map<String, String> iconDims = new HashMap<String, String>();
+    private static final String[] SUPPORTED_FORMATS = new String[] {".svg", ".png", ".gif"};
+    private static final Map<String, String> iconDims = new HashMap<>();
 
     static {
         iconDims.put("16x16", "icon-sm");
@@ -59,11 +63,12 @@ public class Icon {
     private final String url;
     private final String style;
     private IconType iconType;
+    private IconFormat iconFormat;
 
     /**
      * Creates a {@link IconType#CORE core} icon.
      *
-     * @param classSpec The icon class names.
+     * @param classSpec The icon class names. Expected to start with `icon-`.
      * @param style     The icon style.
      */
     public Icon(String classSpec, String style) {
@@ -73,7 +78,7 @@ public class Icon {
     /**
      * Creates a {@link IconType#CORE core} icon.
      *
-     * @param classSpec The icon class names.
+     * @param classSpec The icon class names. Expected to start with `icon-`.
      * @param url       The icon image url.
      * @param style     The icon style.
      */
@@ -91,17 +96,43 @@ public class Icon {
     /**
      * Icon instance.
      *
-     * @param classSpec The icon class specification.
+     * @param classSpec The icon class specification. Expected to start with `icon-`.
      * @param url       The icon image url.
      * @param style     The icon style.
      * @param iconType  The icon type.
      */
     public Icon(String classSpec, String url, String style, IconType iconType) {
+        this(classSpec, url, style, iconType, IconFormat.IMG);
+    }
+
+    /**
+     * Creates an icon.
+     *
+     * @param classSpec The icon class names. Expected to start with `icon-`.
+     * @param url       The icon image url.
+     * @param style     The icon style.
+     * @param iconFormat the {@link IconFormat}.
+     * @since 2.283
+     */
+    public Icon(String classSpec, String url, String style, IconFormat iconFormat) {
+        this(classSpec, url, style, IconType.CORE, iconFormat);
+        if (url != null) {
+            if (url.startsWith("images/")) {
+                this.iconType = IconType.CORE;
+            } else if (url.startsWith("plugin/")) {
+                this.iconType = IconType.PLUGIN;
+            }
+        }
+    }
+
+    @Restricted(NoExternalUse.class)
+    public Icon(String classSpec, String url, String style, IconType iconType, IconFormat iconFormat) {
         this.classSpec = classSpec;
         this.normalizedSelector = toNormalizedCSSSelector(classSpec);
         this.url = toNormalizedIconUrl(url);
         this.style = style;
         this.iconType = iconType;
+        this.iconFormat = iconFormat;
     }
 
     /**
@@ -110,6 +141,14 @@ public class Icon {
      */
     public String getClassSpec() {
         return classSpec;
+    }
+
+    /**
+     * Is the Icon an SVG?
+     * @since 2.283
+     */
+    public boolean isSvgSprite() {
+        return iconFormat == IconFormat.EXTERNAL_SVG_SPRITE;
     }
 
     /**
@@ -141,7 +180,23 @@ public class Icon {
      */
     public String getQualifiedUrl(JellyContext context) {
         if (url != null) {
-            return iconType.toQualifiedUrl(url, context);
+            return iconType.toQualifiedUrl(url, context.getVariable("resURL").toString());
+        } else {
+            return "";
+        }
+    }
+
+    /**
+     * Get the qualified icon url.
+     * <br>
+     * Qualifying the URL involves prefixing it depending on whether the icon is a core or plugin icon.
+     *
+     * @param resUrl The url of resources.
+     * @return The qualified icon url.
+     */
+    public String getQualifiedUrl(String resUrl) {
+        if (url != null) {
+            return iconType.toQualifiedUrl(url, resUrl);
         } else {
             return "";
         }
@@ -166,7 +221,11 @@ public class Icon {
         if (string == null) {
             return null;
         }
-        return "icon-" + toNormalizedIconName(string);
+        String iconName = toNormalizedIconName(string);
+        if (iconName.startsWith("icon-")) {
+            return iconName;
+        }
+        return "icon-" + iconName;
     }
 
     /**
@@ -179,7 +238,7 @@ public class Icon {
         if (string == null) {
             return null;
         }
-        if (string.endsWith(".png") || string.endsWith(".gif")) {
+        if (StringUtils.endsWithAny(string, SUPPORTED_FORMATS)) {
             string = string.substring(0, string.length() - 4);
         }
         return string.replace('_', '-');
@@ -197,7 +256,7 @@ public class Icon {
             return null;
         }
         String normalizedSizeClass = iconDims.get(string.trim());
-        return (normalizedSizeClass != null ? normalizedSizeClass : string);
+        return normalizedSizeClass != null ? normalizedSizeClass : string;
     }
 
     /**
@@ -216,11 +275,11 @@ public class Icon {
         }
 
         String[] classNameTokA = classNames.split(" ");
-        List<String> classNameTokL = new ArrayList<String>();
+        List<String> classNameTokL = new ArrayList<>();
 
         // Trim all tokens first
-        for (int i = 0; i < classNameTokA.length; i++) {
-            String trimmedToken = classNameTokA[i].trim();
+        for (String classNameTok : classNameTokA) {
+            String trimmedToken = classNameTok.trim();
             if (trimmedToken.length() > 0) {
                 classNameTokL.add(trimmedToken);
             }
@@ -231,12 +290,12 @@ public class Icon {
         classNameTokL.toArray(classNameTokA);
 
         // Sort classNameTokA
-        Arrays.sort(classNameTokA, new StringComparator());
+        Arrays.sort(classNameTokA, Comparator.comparing(String::toString));
 
         // Build the compound name
         StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < classNameTokA.length; i++) {
-            stringBuilder.append(".").append(classNameTokA[i]);
+        for (String classNameTok : classNameTokA) {
+            stringBuilder.append(".").append(classNameTok);
         }
 
         return stringBuilder.toString();
@@ -266,13 +325,5 @@ public class Icon {
         }
 
         return originalUrl;
-    }
-
-    private static class StringComparator implements Comparator<String> {
-
-        @Override
-        public int compare(String s1, String s2) {
-            return s1.compareTo(s2);
-        }
     }
 }
